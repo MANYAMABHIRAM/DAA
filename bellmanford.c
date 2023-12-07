@@ -2,51 +2,52 @@
 #include <stdlib.h>
 #include <limits.h>
 
-int *bellmanFord(int graph[][10], int v, int n)
-{
-    int *dist = (int *)malloc((n + 1) * sizeof(int));
-    dist[0] = 0;
-    for (int i = 1; i <= n; i++)
-        dist[i] = graph[v][i];
+#define MAX_VERTICES 10
 
-    for (int k = 2; k <= n - 1; k++)
-    {
-        for (int i = 1; i <= n; i++)
-        {
-            for (int u = 1; u <= n; u++)
-            {
-                if ((u != i && u != v && graph[i][u] != INT_MAX) &&
-                    (dist[u] > dist[i] + graph[i][u]))
-                    dist[u] = dist[i] + graph[i][u];
+int* bellmanFord(int graph[MAX_VERTICES][MAX_VERTICES], int source, int vertices) {
+    int* distances = (int*)malloc((vertices + 1) * sizeof(int));
+    distances[0] = 0;
+
+    for (int i = 1; i <= vertices; i++)
+        distances[i] = (i == source) ? 0 : INT_MAX;
+
+    for (int k = 1; k <= vertices - 1; k++) {
+        for (int u = 1; u <= vertices; u++) {
+            for (int v = 1; v <= vertices; v++) {
+                if (graph[u][v] != INT_MAX && distances[u] != INT_MAX && distances[v] > distances[u] + graph[u][v]) {
+                    distances[v] = distances[u] + graph[u][v];
+                }
             }
         }
     }
-    return dist;
+
+    return distances;
 }
 
-int main()
-{
-    int n, v;
+int main() {
+    int vertices, source;
     printf("Enter the number of vertices: ");
-    scanf("%d", &n);
+    scanf("%d", &vertices);
 
-    int graph[][10] = {{0, 0, 0, 0, 0, 0, 0, 0},
-                       {0, 0, 6, 5, 5, INT_MAX, INT_MAX, INT_MAX},
-                       {0, INT_MAX, 0, INT_MAX, INT_MAX, -1, INT_MAX, INT_MAX},
-                       {0, INT_MAX, -2, 0, INT_MAX, 1, INT_MAX, INT_MAX},
-                       {0, INT_MAX, INT_MAX, -2, 0, INT_MAX, -1, INT_MAX},
-                       {0, INT_MAX, INT_MAX, INT_MAX, INT_MAX, 0, INT_MAX, 3},
-                       {0, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX, 0, 3},
-                       {0, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX, 0}};
+    int graph[MAX_VERTICES][MAX_VERTICES];
+    printf("Enter the adjacency matrix:\n");
+    for (int i = 1; i <= vertices; i++) {
+        for (int j = 1; j <= vertices; j++) {
+            scanf("%d", &graph[i][j]);
+            if (i != j && graph[i][j] == 0)
+                graph[i][j] = INT_MAX;
+        }
+    }
 
     printf("Enter the source node: ");
-    scanf("%d", &v);
+    scanf("%d", &source);
 
-    int *dist = bellmanFord(graph, v, n);
+    int* distances = bellmanFord(graph, source, vertices);
 
-    printf("Distance from %d to: \n", v);
-    for (int i = 1; i <= n; i++)
-    {
-        printf("\t%d: %d\n", i, dist[i]);
+    printf("Distance from %d to:\n", source);
+    for (int i = 1; i <= vertices; i++) {
+        printf("\t%d: %d\n", i, distances[i]);
     }
+
+    return 0;
 }
